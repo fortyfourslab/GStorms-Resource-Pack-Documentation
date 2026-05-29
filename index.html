@@ -389,7 +389,9 @@
       }
     </script>
 
-    <script src="assets/table_documentation.js"></script>
+    <script>
+      document.write(`<script src="assets/table_documentation.js?v=${Date.now()}"><\/script>`);
+    </script>
 
     <script>
       const PAGES = [
