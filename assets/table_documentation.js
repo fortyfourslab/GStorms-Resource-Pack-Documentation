@@ -59,7 +59,7 @@ const PROFILE_INTROS = {
   curtains:
     "The profile for debris curtains that wrap around violent tornadoes.",
   stormcloud:
-    "The storm cloud material used by weather entities like thunderstorms, rainstorms, tornadoes etc,.",
+    "The storm cloud material used by weather entities like thunderstorms, rainstorms, tornadoes, etc,.",
   rainsheet:
     "The distant precipitation sheet profile that fills storms with broad rain or snow curtains.",
   rain: "The close-range rain particle profile that spawns around the player.",
@@ -87,7 +87,7 @@ const GROUPS = [
       field(
         "pack_name",
         "string",
-        "The display name for this resource pack in menus and pack selection.",
+        "The display name for this resource pack in pack selection.",
         ["packName"],
         d(`
           pack_name = "GStorms: Default Resource Pack"
@@ -220,7 +220,7 @@ const GROUPS = [
           field(
             "sunrise / day / sunset / night",
             "table",
-            "Time-of-day phase blocks. Each phase can define sky colors, sun colors, and fog so the environment can smoothly change through the day.",
+            "Time-of-day controls. Each phase allows for modifying sky colors, sun colors, and fog so the environment can smoothly change depending on the time of day.",
             [],
             d(`
               day = {
@@ -378,7 +378,7 @@ const GROUPS = [
                   field(
                     "rain_clientside",
                     "table",
-                    "Extra close-range fog used clientside during heavy storm conditions.",
+                    "Fog controls based on reflectivity or player experienced rain intensity, usually denser is better.",
                     [],
                     d(
                       `rain_clientside = {density = 0.85, fog_start = -1, fog_end = 7500}`,
@@ -404,7 +404,7 @@ const GROUPS = [
       {
         key = "mesocyclone",
         material = "clouds_and_weather/wispy_smoke5",
-        static_color = Color(255, 255, 255, 220),
+        static_color = Color(255, 255, 255),
         height = 1200
       }
     `),
@@ -426,7 +426,7 @@ const GROUPS = [
       field(
         "material_flags",
         "string",
-        "Optional Source material flags passed into Material(), such as smooth filtering.",
+        "Optional additional material flags passed into Material(), such as smooth filtering.",
         ["materialFlags"],
         d(`material_flags = "smooth"`),
       ),
@@ -435,7 +435,24 @@ const GROUPS = [
         "color/range",
         "Makes the profile use a flat static color. When this is set, it is used instead of shaded_color.",
         ["color"],
-        d(`static_color = Color(255, 255, 255, 210)`),
+        d(`static_color = Color(255, 255, 255)`),
+        "all",
+        [
+          field(
+            "min",
+            "Color",
+            "Used if you want random colorations. This is random color #1.",
+            [],
+            d(`static_color = {min = Color(255, 255, 255), max = Color(255, 255, 255)}`),
+          ),
+          field(
+            "max",
+            "Color",
+            "Used if you want random colorations. This is random color #2.",
+            [],
+            d(`static_color = {min = Color(255, 255, 255), max = Color(255, 255, 255)}`),
+          ),
+        ],
       ),
       field(
         "shaded_color",
@@ -443,23 +460,71 @@ const GROUPS = [
         "A bright and dark color pair used for 3D shading for sunlighting (bright) and backlighting (dark).",
         ["dynamic_color", "angle_colors", "angleColors"],
         d(`
-        shaded_color = {
-          bright = Color(255, 255, 255),
-          dark = Color(75, 90, 110)
-        }
+        shaded_color = {bright = Color(255, 255, 255), dark = Color(75, 90, 110)}
       `),
+        "all",
+        [
+          field(
+            "bright",
+            "Color/table",
+            "The bright color used for sunlighting.",
+            [],
+            d(`bright = Color(255, 255, 255)`),
+            "all",
+            [
+              field(
+                "min",
+                "Color",
+                "Used if you want random colorations. This is random color #1.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+              field(
+                "max",
+                "Color",
+                "Used if you want random colorations. This is random color #2.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+            ],
+          ),
+          field(
+            "dark",
+            "Color/table",
+            "The dark color used for backlighting.",
+            [],
+            d(`dark = Color(75, 90, 110)`),
+            "all",
+            [
+              field(
+                "min",
+                "Color",
+                "Used if you want random colorations. This is random color #1.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+              field(
+                "max",
+                "Color",
+                "Used if you want random colorations. This is random color #2.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+            ],
+          ),
+        ],
       ),
       field(
         "fall_speed",
         "number",
-        "How fast the particle falls downward.",
+        "How fast the particle moves downward.",
         ["fallSpeed"],
         d(`fall_speed = 350`),
       ),
       field(
         "height",
         "number",
-        "Moves the particle spawn position up or down.",
+        "A height offset for the particle profile.",
         ["addHeight"],
         d(`height = 900`),
       ),
@@ -474,7 +539,7 @@ const GROUPS = [
       field(
         "centered",
         "boolean",
-        "Centers particles around their point of orbit while still maintaining orbit related properties such as color and lifetime.",
+        "Centers particles around their point of orbit while still maintaining orbit related properties such as color and lifetime. Default resource pack dust devil tubes and landspout tubes use this flag.",
         [],
         d(`centered = true`),
         SUPPORTS.orbit,
@@ -482,7 +547,7 @@ const GROUPS = [
       field(
         "blend_top",
         "boolean",
-        "Fades particles near the top of the funnel or particle system so particles that normally connect to storm clouds blend.",
+        "Fades particles near the top of the funnel or particle system so particles that normally connect to storm clouds blend slightly better.",
         ["blendTop"],
         d(`blend_top = true`),
         SUPPORTS.orbitBlend,
@@ -490,7 +555,7 @@ const GROUPS = [
       field(
         "blend_angle",
         "boolean",
-        "Orbit particles have particles behind the point of orbit faded to improve blending.",
+        "Orbit particles have particles behind the point of orbit faded to improve blending. If you're noticing back-lit shading peaking through the funnel, set this to true.",
         ["useAngleAlpha"],
         d(`blend_angle = true`),
         [
@@ -520,7 +585,7 @@ const GROUPS = [
       field(
         "flow_particle_end_size_mult",
         "number",
-        "Controls how much sandstorm or pyroclastic-flow particles grow near the end of their life.",
+        "Controls how much sandstorm or pyroclastic flow particles grow in size at the end of their life to create that billowing effect.",
         [],
         d(`flow_particle_end_size_mult = 3`),
         SUPPORTS.flow,
@@ -560,7 +625,7 @@ const GROUPS = [
       field(
         "fade_in",
         "number",
-        "How much of the particle lifetime is spent fading in. Higher values make particles appear more gradually. This is how far into the particles lifetime from 0 to 1 as to how long it takes for the particle to complete fading in.",
+        "How far into the particle's lifetime the fade-in lasts, from 0 to 1. Higher values make particles appear more gradually. For example, 0.05 means the particle reaches full alpha after 5% of its lifetime.",
         ["fadeIn"],
         d(`fade_in = 0.05`),
       ),
@@ -589,14 +654,14 @@ const GROUPS = [
       field(
         "min",
         "number",
-        "The minimum angle out of 360 degrees that the material itself can start rotated at on initial spawn.",
+        "The minimum angle out of 360 degrees that the material itself can start rotated at upon initial spawn.",
         [],
         d(`min = -180`),
       ),
       field(
         "max",
         "number",
-        "The maximum angle out of 360 degrees that the material itself can start rotated at on initial spawn.",
+        "The maximum angle out of 360 degrees that the material itself can start rotated at upon initial spawn.",
         [],
         d(`max = 180`),
       ),
@@ -636,14 +701,14 @@ const GROUPS = [
       field(
         "count_multiplier",
         "number",
-        "How many particles this profile spawns compared to the normal amount. Higher values make the effect denser.",
+        "A multiplier for controlling the amount of particles for the profile, higher increases density and lower makes particles more sparse.",
         ["pCountMult"],
         d(`count_multiplier = 0.75`),
       ),
       field(
         "lifetime",
         "number",
-        "How long each particle lasts in seconds. Some particle types can use 0 for automatic lifetime behavior more specifically for particles that orbit.",
+        "How long each particle lasts in seconds. Some particle types can use 0 for automatic lifetime behavior or more specifically for particles that orbit, for particles that orbit except mesocyclones, using 0 is ideal as this allows for dynamic lifetime calculation.",
         [],
         d(`lifetime = 9`),
       ),
@@ -847,7 +912,7 @@ const GROUPS = [
     id: "requirements",
     name: "requirements",
     profiles: SUPPORTS.alphaWindspeed,
-    desc: "Optional filters that decide when this profile is allowed to be selected for the current vortex context if you want differing profiles for weaker vortices, wider vortices etc,.",
+    desc: "Optional filters that decide when the profile is allowed to be selected for the current vortex context if you want differing profiles for weaker vortices, wider vortices etc,.",
     ex: d(`
       requirements = {
         wind_speed = {min = 80, max = 180},
@@ -858,14 +923,14 @@ const GROUPS = [
       field(
         "wind_speed",
         "number/range",
-        "The entity windspeed range where this profile can be selected and is a candidate.",
+        "The entity windspeed range that allows the profile to be selected / become a candidate.",
         ["windSpeed", "windspeed"],
         d(`wind_speed = {min = 80, max = 180}`),
       ),
       field(
         "rmw_size",
         "number/range",
-        "The radius-of-maximum-wind size range where this profile can be selected and is a candidate.",
+        "The radius-of-maximum-wind size range that allows the profile to be selected / become a candidate.",
         ["rmwSize", "rmw"],
         d(`rmw_size = {min = 100, max = 900}`),
       ),
@@ -888,21 +953,21 @@ const GROUPS = [
       field(
         "min_cloud_size",
         "number",
-        "The smallest generated cloud size.",
+        "The smallest size that a cloud can be.",
         ["minCloudSize"],
         d(`min_cloud_size = 4500`),
       ),
       field(
         "max_cloud_size",
         "number",
-        "The largest generated cloud size.",
+        "The largest size that a cloud can be.",
         ["maxCloudSize"],
         d(`max_cloud_size = 11000`),
       ),
       field(
         "count_multiplier",
         "number",
-        "How many cloud groups spawn compared to normal. Higher values make the ambient cloud field denser.",
+        "The multiplier for the number of cloud groups that spawn. Higher values make the ambient cloud field denser.",
         ["countMultiplier"],
         d(`count_multiplier = 1`),
       ),
@@ -926,7 +991,7 @@ const GROUPS = [
       field(
         "min_reflectivity",
         "number",
-        "The storm intensity where this profile starts appearing.",
+        "The reflectivity threshold (or precipitation threshold) at which particles start appearing / using the min reflectivity alpha multiplier.",
         ["minReflectivity"],
         d(`min_reflectivity = 10`),
         SUPPORTS.reflectAll,
@@ -934,7 +999,7 @@ const GROUPS = [
       field(
         "max_reflectivity",
         "number",
-        "The storm intensity where this profile reaches full strength.",
+        "The reflectivity threshold (or precipitation threshold) at which particles max out their alpha values.",
         ["maxReflectivity"],
         d(`max_reflectivity = 100`),
         SUPPORTS.reflectAll,
@@ -942,7 +1007,7 @@ const GROUPS = [
       field(
         "reflectivity_alpha_multiplier",
         "number",
-        "An extra visibility multiplier based on reflectivity. Higher values make reflectivity-driven particles more visible.",
+        "An extra opacity multiplier applied to reflectivity-driven particles. Higher values make these particles more visible once reflectivity is within the configured range.",
         ["reflectivityAlphaMultiplier", "reflectivityAlphaMult"],
         d(`reflectivity_alpha_multiplier = 1.5`),
         SUPPORTS.reflectAll,
@@ -968,10 +1033,7 @@ const GROUPS = [
       color_over_water = {
         alpha_multiplier = 0.4,
 
-        shaded_color = {
-          bright = Color(245, 255, 255),
-          dark = Color(75, 79, 83)
-        }
+        shaded_color = {bright = Color(245, 255, 255), dark = Color(75, 79, 83)}
       }
     `),
     fields: [
@@ -988,6 +1050,23 @@ const GROUPS = [
         "A water-specific flat color used for debris over water.",
         ["color"],
         d(`static_color = Color(120, 130, 140)`),
+        SUPPORTS.debris,
+        [
+          field(
+            "min",
+            "Color",
+            "Used if you want random colorations. This is random color #1.",
+            [],
+            d(`static_color = {min = Color(255, 255, 255), max = Color(255, 255, 255)}`),
+          ),
+          field(
+            "max",
+            "Color",
+            "Used if you want random colorations. This is random color #2.",
+            [],
+            d(`static_color = {min = Color(255, 255, 255), max = Color(255, 255, 255)}`),
+          ),
+        ],
       ),
       field(
         "shaded_color",
@@ -995,11 +1074,59 @@ const GROUPS = [
         "A water-specific bright and dark shaded color pair for debris over water.",
         ["dynamic_color", "angle_colors", "angleColors"],
         d(`
-        shaded_color = {
-          bright = Color(245, 255, 255),
-          dark = Color(75, 79, 83)
-        }
+        shaded_color = {bright = Color(245, 255, 255), dark = Color(75, 79, 83)}
       `),
+        SUPPORTS.debris,
+        [
+          field(
+            "bright",
+            "Color/table",
+            "The water-specific bright color used for sunlighting.",
+            [],
+            d(`bright = Color(245, 255, 255)`),
+            SUPPORTS.debris,
+            [
+              field(
+                "min",
+                "Color",
+                "Used if you want random colorations. This is random color #1.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+              field(
+                "max",
+                "Color",
+                "Used if you want random colorations. This is random color #2.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+            ],
+          ),
+          field(
+            "dark",
+            "Color/table",
+            "The water-specific dark color used for backlighting.",
+            [],
+            d(`dark = Color(75, 79, 83)`),
+            SUPPORTS.debris,
+            [
+              field(
+                "min",
+                "Color",
+                "Used if you want random colorations. This is random color #1.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+              field(
+                "max",
+                "Color",
+                "Used if you want random colorations. This is random color #2.",
+                [],
+                d(`shaded_color = {bright = {min = Color(255, 255, 255), max = Color(255, 255, 255)}, dark = {min = Color(255, 255, 255), max = Color(255, 255, 255)}}`),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   },
@@ -1009,7 +1136,7 @@ const GROUPS = [
     name: "entity_overrides",
     profiles: SUPPORTS.all,
     aliases: ["entityOverrides"],
-    desc: "Changes the profiles properties when specific entity flags are active. Each override can contain any normal profile field with the exception of material such as alpha_controls, particle_parameters, alpha_windspeed, static_color, or shaded_color.",
+    desc: "Each override can contain most normal profile fields, such as alpha_controls, particle_parameters, alpha_windspeed, static_color, shaded_color etc,. Material overrides are not supported.",
     ex: d(`
       entity_overrides = {
         IsDestroying = {
