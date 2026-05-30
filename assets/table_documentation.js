@@ -547,7 +547,7 @@ const GROUPS = [
       field(
         "blend_top",
         "boolean",
-        "Fades particles near the top of the funnel or particle system so particles that normally connect to storm clouds blend slightly better.",
+        "A fade that gets gradually stronger as particles increase in height. Useful for dust devil tubes.",
         ["blendTop"],
         d(`blend_top = true`),
         SUPPORTS.orbitBlend,
