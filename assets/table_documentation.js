@@ -419,7 +419,7 @@ const GROUPS = [
       field(
         "material",
         "string",
-        "The material path used by this particle.",
+        'The material path used by this particle. Must be a .vtf with a .vmt file. A material with the path "materials/mypackname/mymaterial.vmt" would be formatted as "mypackname/mymaterial"',
         [],
         d(`material = "clouds_and_weather/wispy_smoke4"`),
       ),
